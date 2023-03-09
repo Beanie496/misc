@@ -5,11 +5,11 @@
 typedef struct {
 	unsigned int wantsHelp : 1;
 	unsigned int hasGivenPath : 1;
-	unsigned int isDeletingFiles : 1;
+	unsigned int isCreatingFiles : 1;
 } Flags;
 
 
-void generate(char path[])
+void generate(char path[], int isCreatingFiles)
 {
 	FILE *file;
 
@@ -39,10 +39,17 @@ void generate(char path[])
 	char i = 1;
 	do {
 		name[lengthOfName - 1] = i;
-		fprintf(stderr, "Attempting to create file \"%c\" (%d)", i, i);
-		file = fopen(name, "w+");
-		fclose(file);
-		fprintf(stderr, " [success]\n");
+		if (isCreatingFiles) {
+			fprintf(stderr, "Attempting to create file \"%c\" (%d)", i, i);
+			// TODO: creating file "." creates segfault. Fix this.
+			file = fopen(name, "w+");
+			fclose(file);
+			fprintf(stderr, " [success]\n");
+		} else {
+			fprintf(stderr, "Attempting to delete file \"%c\" (%d)", i, i);
+			remove(name);
+			fprintf(stderr, " [success]\n");
+		}
 		i++;
 	} while (i != 0);
 
@@ -71,11 +78,11 @@ int main(int argc, char* argv[]) {
 				break;
 
 			case 'c':
-				flags.isDeletingFiles = 0;
+				flags.isCreatingFiles = 1;
 				break;
 
 			case 'd':
-				flags.isDeletingFiles = 1;
+				flags.isCreatingFiles = 0;
 				break;
 
 			default:
@@ -100,7 +107,7 @@ int main(int argc, char* argv[]) {
 		printf("Path mentioned but not given. "
 		       "Defaulting to current directory.\n");
 
-	generate(parameter);
+	generate(parameter, flags.isCreatingFiles);
 
 	free(parameter);
 
