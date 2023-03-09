@@ -3,39 +3,33 @@
 #include <string.h>
 
 
-void generate(char cmd[], char path[])
+void generate(char path[])
 {
-	char* finalCmd;
-	int sizeOfCmd  = strlen(cmd) + 1; // including the null char
-	int sizeOfPath;
+	FILE *file;
 
-
-	if (path != 0) {
-		sizeOfPath = strlen(path) + 1;
-		if (path[sizeOfPath - 2] != '/') { // last non-null char
-			path = realloc(path, ++sizeOfPath);
-			path[sizeOfPath - 2] = '/';
-			path[sizeOfPath - 1] = '\0';
-		}
+	char *name;
+	int lengthOfPath = sizeof(path);
+	int lengthOfName;
+	if (path[sizeOfPath - 1] == '/') {
+		// name + null char
+		lengthOfName = (lengthOfPath + 1) * sizeof(char);
+		name = malloc(lengthOfName + 1 * sizeof(char));
+		name[lengthOfName] = '\0';
 	} else {
-		sizeOfPath = 4; // "./\0"
-		path = malloc(sizeOfPath);
-		path = "./\\";
+		// slash + name + null char
+		lengthOfName = (lengthOfPath + 2) * sizeof(char);
+		name = malloc(lengthOfName + 1 * sizeof(char));
+		name[lengthOfName] = '\0';
+		name[lengthOfName - 2] = '/';
 	}
 
-	// "command\0path/\0'char' " is same size as "command path/char\0"
-	finalCmd = malloc(sizeOfCmd + sizeOfPath + 1);
-	strcpy(finalCmd, cmd);
-	finalCmd[sizeOfCmd - 1] = ' ';
-	strcpy(finalCmd + sizeOfCmd, path);
-	// leaves a single char, 1 before the null char, to be changed
-	finalCmd[sizeOfCmd + sizeOfPath] = '\0';
 
 	char i = 0;
 	do {
-		finalCmd[sizeOfCmd + sizeOfPath - 1] = i;
-		printf("command = %s; i = %c or %d\n", finalCmd, i, i);
-		system(finalCmd);
+		name[lengthOfName - 1] = i;
+		file = fopen(name, "w");
+		fclose(file);
+		printf("created file \"%c\" (%d)\n", finalCmd, i, i);
 		i++;
 	} while (i != 0);
 
@@ -87,13 +81,9 @@ int main(int argc, char* argv[]) {
 		printf("Path mentioned but not given. "
 		       "Defaulting to current directory.\n");
 
-	if (flags & (1 << 2))
-		generate("rm -f", pathPtr);
-	else
-		generate("touch", pathPtr);
+	generate(pathPtr);
 
-	if (pathPtr != 0)
-		free(pathPtr);
+	free(pathPtr);
 
 
 	return 0;
