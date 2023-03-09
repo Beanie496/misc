@@ -2,70 +2,89 @@
 #include <stdlib.h>
 #include <string.h>
 
+typedef struct {
+	unsigned int wantsHelp : 1;
+	unsigned int hasGivenPath : 1;
+	unsigned int isDeletingFiles : 1;
+} Flags;
+
 
 void generate(char path[])
 {
 	FILE *file;
 
 	char *name;
-	int lengthOfPath = sizeof(path);
 	int lengthOfName;
-	if (path[sizeOfPath - 1] == '/') {
-		// name + null char
-		lengthOfName = (lengthOfPath + 1) * sizeof(char);
-		name = malloc(lengthOfName + 1 * sizeof(char));
-		name[lengthOfName] = '\0';
+	int lengthOfPath;
+
+	if (path == NULL) {
+		lengthOfName = 1;
+		name = malloc(lengthOfName * sizeof(char));
 	} else {
-		// slash + name + null char
-		lengthOfName = (lengthOfPath + 2) * sizeof(char);
-		name = malloc(lengthOfName + 1 * sizeof(char));
-		name[lengthOfName] = '\0';
-		name[lengthOfName - 2] = '/';
+		lengthOfPath = strlen(path);
+
+		if (path[lengthOfPath - 1] == '/') {
+			lengthOfName = lengthOfPath + 1;
+			name = malloc((lengthOfName + 1) * sizeof(char));
+		} else {
+			// slash + name + null char
+			lengthOfName = lengthOfPath + 2;
+			name = malloc((lengthOfName + 1) * sizeof(char));
+			name[lengthOfName - 2] = '/';
+		}
 	}
+	name[lengthOfName] = '\0';
 
 
-	char i = 0;
+	char i = 1;
 	do {
 		name[lengthOfName - 1] = i;
-		file = fopen(name, "w");
+		fprintf(stderr, "Attempting to create file \"%c\" (%d)", i, i);
+		file = fopen(name, "w+");
 		fclose(file);
-		printf("created file \"%c\" (%d)\n", finalCmd, i, i);
+		fprintf(stderr, " [success]\n");
 		i++;
 	} while (i != 0);
 
-	free(finalCmd);
+	free(name);
 }
 
 
 int main(int argc, char* argv[]) {
-	char flags = 0; // bits 0-7: wants help, has given path, is deleting files
-	char* pathPtr = 0;
+	Flags flags = { 0, 0, 0 };
+	char *parameter = NULL;
 
-	for (int arg = 1; arg < argc; arg++) {
-		if (argv[arg][0] == '-') {
-			if (argv[arg][1] == 'h')
-				flags |= 1 << 0;
+	while (--argc > 0) {
+		if (argv[argc][0] != '-') {
+			parameter = malloc(strlen(argv[argc]) * sizeof(char *));
+			strcpy(parameter, argv[argc]);
+			continue;
+		}
 
-			if (argv[arg][1] == 'p') {
-				if (argc - arg != 1) {
-					if (flags & (1 << 1))
-						free(pathPtr);
-					pathPtr = malloc(sizeof(argv[arg + 1]));
-					strcpy(pathPtr, argv[arg + 1]);
-				} else {
-					flags |= 1 << 1;
-				}
-			}
+		switch(argv[argc][1]) {
+			case 'h':
+				flags.wantsHelp = 1;
+				break;
 
-			if (argv[arg][1] == 'c')
-				flags &= ~(1 << 2);
+			case 'p':
+				flags.hasGivenPath = 1;
+				break;
 
-			if (argv[arg][1] == 'd')
-				flags |= 1 << 2;
+			case 'c':
+				flags.isDeletingFiles = 0;
+				break;
+
+			case 'd':
+				flags.isDeletingFiles = 1;
+				break;
+
+			default:
+				printf("Unknown argument \"%s\"\n", argv[argc]);
+				return 1;
 		}
 	}
 
-	if (flags & (1 << 0)) {
+	if (flags.wantsHelp) {
 		printf("Usage: \"aacfc [options]\"\n"
 		       "\n"
 			   "Options:\n"
@@ -77,13 +96,13 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
 
-	if (flags & (1 << 1) && pathPtr == 0)
+	if (flags.hasGivenPath && parameter == NULL)
 		printf("Path mentioned but not given. "
 		       "Defaulting to current directory.\n");
 
-	generate(pathPtr);
+	generate(parameter);
 
-	free(pathPtr);
+	free(parameter);
 
 
 	return 0;

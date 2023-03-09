@@ -11,7 +11,7 @@ CFLAGS = -pedantic -Wall -O2
 
 default: all
 
-all: $(OBJ)
+all: $(EXE)
 
 help:
 	@echo "To compile, type:"
