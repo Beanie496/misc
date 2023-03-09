@@ -14,12 +14,11 @@ void generate(char path[], int isCreatingFiles)
 	FILE *file;
 
 	char *name;
-	int lengthOfName;
-	int lengthOfPath;
+	int lengthOfName, lengthOfPath;
 
 	if (path == NULL) {
 		lengthOfName = 1;
-		name = malloc(lengthOfName * sizeof(char));
+		name = malloc((lengthOfName + 1) * sizeof(char));
 	} else {
 		lengthOfPath = strlen(path);
 
@@ -36,17 +35,21 @@ void generate(char path[], int isCreatingFiles)
 	name[lengthOfName] = '\0';
 
 
-	char i = 1;
+	char i = 0;
 	do {
+		if (i == '\0' || i == '.' || i == '/') {
+			fprintf(stderr, "Skipping file \"%c\"\n", i++);
+			continue;
+		}
 		name[lengthOfName - 1] = i;
 		if (isCreatingFiles) {
-			fprintf(stderr, "Attempting to create file \"%c\" (%d)", i, i);
+			fprintf(stderr, "Attempting to create file \"%s\" (%d)", name, i);
 			// TODO: creating file "." creates segfault. Fix this.
 			file = fopen(name, "w+");
 			fclose(file);
 			fprintf(stderr, " [success]\n");
 		} else {
-			fprintf(stderr, "Attempting to delete file \"%c\" (%d)", i, i);
+			fprintf(stderr, "Attempting to delete file \"%s\" (%d)", name, i);
 			remove(name);
 			fprintf(stderr, " [success]\n");
 		}
@@ -58,7 +61,7 @@ void generate(char path[], int isCreatingFiles)
 
 
 int main(int argc, char* argv[]) {
-	Flags flags = { 0, 0, 0 };
+	Flags flags = { 0, 0, 1 };
 	char *parameter = NULL;
 
 	while (--argc > 0) {
