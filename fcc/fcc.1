@@ -1,0 +1,40 @@
+.TH FCC "1"
+.SH NAME
+fcc \- file character count
+.SH SYNOPSIS
+.B fcc
+[\fI\,-acfhlnsv\/\fR]... [\FI\,FILE\/\fR]...
+.SH DESCRIPTION
+Count how many characters there are in a text file. If no file is given, use
+standard input instead.
+.TP
+\fB\-a\fR
+count all whitespace
+.TP
+\fB\-c\fR
+count carriage returns
+.TP
+\fB\-f\fR
+count form feeds
+.TP
+\fB\-h\fR
+count horizontal tabs (otherwise known as just tabs)
+.TP
+\fB\-l\fR
+count line feeds (otherwise known as newlines)
+.TP
+\fB\-n\fR
+count no whitespace
+.TP
+\fB\-s\fR
+count spaces
+.TP
+\fB\-v\fR
+count vertical tabs
+.SH AUTHOR
+Written by Beanie496.
+.SH "REPORTING BUGS"
+Report any issues at <https://github.com/Beanie496/misc/issues>
+.SH COPYRIGHT
+None
+.SH "SEE ALSO"
