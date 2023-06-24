@@ -1,5 +1,3 @@
-SRC = fcc.c
-OBJ = $(SRC:.c=.o)
 BINDIR = /usr/local/bin
 MANDIR = /usr/local/man
 CC = cc
@@ -35,7 +33,7 @@ strip:
 
 install: strip
 	-mkdir -p -m 755 $(BINDIR)
-	-cp $(EXE) $(BINDIR)
+	-cp fcc $(BINDIR)
 	-mkdir -p $(MANDIR)/man1
 	-chmod 644 $(MANDIR)/man1/fcc.1
 
@@ -43,7 +41,8 @@ uninstall:
 	rm -f $(BINDIR)/fcc
 
 clean:
-	rm -f fcc $(OBJ)
+	rm -f fcc
 
-fcc: $(OBJ)
-	+$(CC) $(CFLAGS) -o $@ $(OBJ)
+# 'fcc.c' needs to be a dependency or make will always say fcc is up to date
+fcc: fcc.c
+	+$(CC) $(CFLAGS) -o $@ fcc.c
