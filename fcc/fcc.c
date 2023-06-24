@@ -9,7 +9,7 @@
 
 #define DEFAULT_COLUMN_WIDTH 12
 
-const char space[] = " ";
+void prettyPrint(char *fileName, int fileNameWidth, int fileTotal, int total);
 
 int main(int argc, char *argv[])
 {
@@ -44,10 +44,6 @@ int main(int argc, char *argv[])
 	while (*++argv) {
 		FILE *file;
 		int currLetterCount = 0;
-		int spacing = 1;
-		int fileNameWidth;
-		int columnWidth;
-		int numWidth;
 
 		file = fopen(*argv, "r");
 		if (file == 0) {
@@ -57,37 +53,47 @@ int main(int argc, char *argv[])
 
 		while (fgetc(file) != EOF)
 			currLetterCount++;
+		fclose(file);
 		count += currLetterCount;
 
-		/*  fileNameWidth  DEFAULT_COLUMN_WIDTH
-		 * |---|          |--------------------|
-		 * file:          <chars>               Total: <chars>
-		 * |-------------|
-		 * columnWidth
-		 *
-		 * columWidth = MAX(DEFAULT_COLUMN_WIDTH, fileNameWidth rounded
-		 * up to the nearest 4)
-		 */
-
-		fileNameWidth = strlen(*argv) + 1;
-		if (fileNameWidth >= DEFAULT_COLUMN_WIDTH)
-			columnWidth = ((fileNameWidth >> 2) + 1) << 2;
-		else
-			columnWidth = DEFAULT_COLUMN_WIDTH;
-
-		if (DEFAULT_COLUMN_WIDTH * 2 > fileNameWidth)
-			spacing = (columnWidth - fileNameWidth);
-
-		// + 4 because of the tab after the number
-		numWidth = -DEFAULT_COLUMN_WIDTH * 2 + columnWidth + 4;
-		if (numWidth > 0)
-			numWidth = 0;
-
-		printf("%s:%*s%*d\tTotal: %d\n", *argv, spacing, space,
-				numWidth, currLetterCount, count);
+		prettyPrint(*argv, strlen(*argv) + 1, currLetterCount, count);
 	}
 
 	printf("\nTotal count: %d\n", count);
 
 	return 0;
+}
+
+void prettyPrint(char *fileName, int fileNameWidth, int fileTotal, int total)
+{
+	static const char space[] = " ";
+	int columnWidth;
+	int numWidth;
+	int spacing = 1;
+
+	/*  fileNameWidth  DEFAULT_COLUMN_WIDTH
+	 * |---|          |--------------------|
+	 * file:          <chars>               Total: <chars>
+	 * |-------------|
+	 * columnWidth
+	 *
+	 * columWidth = MAX(DEFAULT_COLUMN_WIDTH, fileNameWidth rounded
+	 * up to the nearest 4)
+	 */
+
+	if (fileNameWidth >= DEFAULT_COLUMN_WIDTH)
+		columnWidth = ((fileNameWidth >> 2) + 1) << 2;
+	else
+		columnWidth = DEFAULT_COLUMN_WIDTH;
+
+	if (DEFAULT_COLUMN_WIDTH * 2 > fileNameWidth)
+		spacing = (columnWidth - fileNameWidth);
+
+	// + 4 because of the tab after the number
+	numWidth = -DEFAULT_COLUMN_WIDTH * 2 + columnWidth + 4;
+	if (numWidth > 0)
+		numWidth = 0;
+
+	printf("%s:%*s%*d\tTotal: %d\n", fileName, spacing, space,
+			numWidth, fileTotal, total);
 }
