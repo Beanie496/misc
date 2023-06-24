@@ -5,11 +5,13 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 
 
 int main(int argc, char *argv[])
 {
 	int count = 0;
+	int longestFile = 0;
 	FILE *file;
 
 	// TODO: handle command-line args
@@ -36,8 +38,13 @@ int main(int argc, char *argv[])
 					break;
 			}
 
+	for (char **arg = argv--; *arg; arg++) {
+		int len;
+		if ((len = strlen(*arg)) > longestFile)
+			longestFile = len;
+	}
+
 	// TODO: add custom args for each file
-	argv--;
 	while (*++argv) {
 		int currLetterCount = 0;
 		file = fopen(*argv, "r");
@@ -49,11 +56,12 @@ int main(int argc, char *argv[])
 			currLetterCount++;
 		}
 		count += currLetterCount;
-		printf("Count for this file: %d.\t\t Count total: %d\n",
-				currLetterCount, count);
+		// TODO: fix the colons
+		printf("Total: %-12d%*s: %d\n", count, -longestFile, *argv,
+				currLetterCount);
 	}
 
-	printf("Total count: %d\n", count);
+	printf("\nTotal count: %d\n", count);
 
 	return 0;
 }
