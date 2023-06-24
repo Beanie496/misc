@@ -69,7 +69,7 @@ void prettyPrint(char *fileName, int fileNameWidth, int fileTotal, int total)
 	static const char space[] = " ";
 	int columnWidth;
 	int numWidth;
-	int spacing = 1;
+	int spacing;
 
 	/*  fileNameWidth  DEFAULT_COLUMN_WIDTH
 	 * |---|          |--------------------|
@@ -82,15 +82,16 @@ void prettyPrint(char *fileName, int fileNameWidth, int fileTotal, int total)
 	 */
 
 	if (fileNameWidth >= DEFAULT_COLUMN_WIDTH)
-		columnWidth = ((fileNameWidth >> 2) + 1) << 2;
+		// leave a space between the colon and number
+		columnWidth = fileNameWidth + 1;
 	else
 		columnWidth = DEFAULT_COLUMN_WIDTH;
 
-	if (DEFAULT_COLUMN_WIDTH * 2 > fileNameWidth)
-		spacing = (columnWidth - fileNameWidth);
+	// if fileNameWidth > DEFAULT_COLUMN_WIDTH, spacing == 1
+	spacing = (columnWidth - fileNameWidth);
 
-	// + 4 because of the tab after the number
-	numWidth = -DEFAULT_COLUMN_WIDTH * 2 + columnWidth + 4;
+	// - 4 because of the tab after the number
+	numWidth = -(DEFAULT_COLUMN_WIDTH * 2 - columnWidth - 4);
 	if (numWidth > 0)
 		numWidth = 0;
 
