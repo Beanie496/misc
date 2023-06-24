@@ -7,12 +7,13 @@
 #include <stdio.h>
 #include <string.h>
 
+#define DEFAULT_COLUMN_WIDTH 12
+
+const char space[] = " ";
 
 int main(int argc, char *argv[])
 {
 	int count = 0;
-	int longestFile = 0;
-	FILE *file;
 
 	// TODO: handle command-line args
 	while (*(++argv)[0] == '-')
@@ -37,28 +38,55 @@ int main(int argc, char *argv[])
 				default:
 					break;
 			}
-
-	for (char **arg = argv--; *arg; arg++) {
-		int len;
-		if ((len = strlen(*arg)) > longestFile)
-			longestFile = len;
-	}
+	argv--;
 
 	// TODO: add custom args for each file
 	while (*++argv) {
+		FILE *file;
 		int currLetterCount = 0;
+		int spacing;
+		int fileNameWidth;
+		int columnWidth;
+		int numWidth;
+
 		file = fopen(*argv, "r");
 		if (file == 0) {
 			fprintf(stderr, "Could not open file \"%s\"\n", *argv);
 			continue;
 		}
-		while (fgetc(file) != EOF) {
+
+		while (fgetc(file) != EOF)
 			currLetterCount++;
-		}
 		count += currLetterCount;
-		// TODO: fix the colons
-		printf("Total: %-12d%*s: %d\n", count, -longestFile, *argv,
-				currLetterCount);
+
+		/*  fileNameWidth  DEFAULT_COLUMN_WIDTH
+		 * |---|          |--------------------|
+		 * file:          <chars>               Total: <chars>
+		 * |-------------|
+		 * columnWidth
+		 *
+		 * columWidth = MAX(DEFAULT_COLUMN_WIDTH, fileNameWidth rounded
+		 * up to the nearest 4)
+		 */
+
+		fileNameWidth = strlen(*argv) + 1;
+		if (fileNameWidth >= DEFAULT_COLUMN_WIDTH)
+			columnWidth = ((fileNameWidth >> 2) + 1) << 2;
+		else
+			columnWidth = DEFAULT_COLUMN_WIDTH;
+
+		if (DEFAULT_COLUMN_WIDTH * 2 > fileNameWidth)
+			spacing = (columnWidth - fileNameWidth);
+		else
+			spacing = 1;
+
+		// + 4 because of the tab after the number
+		numWidth = -(DEFAULT_COLUMN_WIDTH * 2 - columnWidth - 4);
+		if (numWidth > 0)
+			numWidth = 0;
+
+		printf("%s:%*s%*d\tTotal: %d\n", *argv, spacing, space,
+				numWidth, currLetterCount, count);
 	}
 
 	printf("\nTotal count: %d\n", count);
