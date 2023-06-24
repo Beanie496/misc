@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 	while (*++argv) {
 		FILE *file;
 		int currLetterCount = 0;
-		int spacing;
+		int spacing = 1;
 		int fileNameWidth;
 		int columnWidth;
 		int numWidth;
@@ -77,11 +77,9 @@ int main(int argc, char *argv[])
 
 		if (DEFAULT_COLUMN_WIDTH * 2 > fileNameWidth)
 			spacing = (columnWidth - fileNameWidth);
-		else
-			spacing = 1;
 
 		// + 4 because of the tab after the number
-		numWidth = -(DEFAULT_COLUMN_WIDTH * 2 - columnWidth - 4);
+		numWidth = -DEFAULT_COLUMN_WIDTH * 2 + columnWidth + 4;
 		if (numWidth > 0)
 			numWidth = 0;
 
