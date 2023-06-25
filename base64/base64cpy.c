@@ -2,20 +2,91 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define todigit(c) ((c) - '0')
+
 char *encode(FILE *stream);
-char base64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+char *decode(FILE *stream);
+// is only called once, so it will exit the program on its own
+void displayHelp(void);
+int toint(char *str);
+
+static struct {
+	unsigned long int encode : 1;
+	// not implemented
+	unsigned long int ignoreGarbage : 1;
+	// wrap after `wrap` columns; not implemented
+	int wrap;
+} flags;
+
+static char base64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 int main(int argc, char *argv[])
 {
 	if (argc == 1)
 		return 1;
 
-	FILE *f = fopen(argv[1], "r");
-	char *encoded = encode(f);
+	int i = 1;
+	flags.encode = 1;
+	flags.ignoreGarbage = 0;
+	flags.wrap = 79;
+
+	for (; i < argc && argv[i][0] == '-'; i++) {
+		switch (argv[i][1]) {
+			case 'd':
+				flags.encode = 0;
+				break;
+			case 'i':
+				flags.ignoreGarbage = 1;
+				break;
+			case 'w':
+				if (++i < argc)
+					flags.wrap = toint(argv[i]);
+				break;
+			case 'h':
+				displayHelp();
+				// technically redundant buts helps readability
+				break;
+			default:
+				fprintf(stderr, "Unrecognised argument "
+						"\"%s\"\n", argv[i]);
+				break;
+		}
+	}
+
+	if (i == argc)
+		return 1;
+
+	FILE *f = fopen(argv[i], "r");
+	if (f == NULL)
+		return 1;
+
+	char *output;
+	if (flags.encode)
+		output = encode(f);
+	else
+		output = decode(f);
+
 	fclose(f);
-	printf("%s\n", encoded);
+	printf("%s\n", output);
 
 	return 0;
+}
+
+void displayHelp(void)
+{
+	printf("base64cpy\n"
+	       "base64 encode/decode a file to standard output.\n"
+	       "\n"
+	       "Usage: base64cpy [OPTION] ... [FILE]\n"
+	       "\n"
+	       "Options:\n"
+	       "    -d		decode data\n"
+	       "    -i		ignore garbage when decoding "
+			"(non-alphanumeric)\n"
+	       "    -w		wrap encoded data after n characters (default "
+			"%d)\n"
+	       "    -h		display this message and die\n", flags.wrap);
+	exit(0);
 }
 
 char *encode(FILE *stream)
@@ -94,4 +165,18 @@ char *encode(FILE *stream)
 	encoded[idx] = '\0';
 
 	return encoded;
+}
+
+char *decode(FILE *stream)
+{
+	// implement
+	return NULL;
+}
+
+int toint(char *str)
+{
+	int ret = 0;
+	while (*str)
+		ret = ret * 10 + todigit(*str++);
+	return ret;
 }
