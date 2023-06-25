@@ -12,6 +12,7 @@ int main(int argc, char *argv[])
 
 	FILE *f = fopen(argv[1], "r");
 	char *encoded = encode(f);
+	fclose(f);
 	printf("%s\n", encoded);
 
 	return 0;
