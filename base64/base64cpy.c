@@ -51,7 +51,7 @@ char *encode(FILE *stream)
 		nextByte = fgetc(stream);
 		if (nextByte == EOF)
 			continue;
-		// get first 2 bits and make them bits 5 and 6
+		// make the last 4 bits the first
 		bitMask |= nextByte >> 4;
 		encoded[idx++] = base64[bitMask];
 
