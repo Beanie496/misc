@@ -45,11 +45,13 @@ char *encode(FILE *stream)
 		bitMask = nextByte >> 2;
 		encoded[idx++] = base64[bitMask];
 
+		// get first 2 bits, make them the last, then pad them
+		// out with 0's
+		bitMask = (nextByte & 0x3) << 4;
 		nextByte = fgetc(stream);
 		if (nextByte == EOF)
 			continue;
 		// get first 2 bits and make them bits 5 and 6
-		bitMask = (bitMask & 0x3) << 4;
 		bitMask |= nextByte >> 4;
 		encoded[idx++] = base64[bitMask];
 
@@ -59,12 +61,36 @@ char *encode(FILE *stream)
 		if (nextByte == EOF)
 			continue;
 		// get last 2 bits of nextByte and make then the first 2
-		bitMask &= nextByte >> 6;
+		bitMask |= nextByte >> 6;
 		encoded[idx++] = base64[bitMask];
+
 		// get the first 6 bits of nextByte
 		bitMask = nextByte & 0x3f;
 		encoded[idx++] = base64[bitMask];
 	}
+
+	// idx mod 4, which checks how much padding is needed.
+	switch (idx & 0x3) {
+		// no padding needed
+		case 0:
+			break;
+		// first 2 bits need to be accounted for
+		case 1:
+			encoded[idx++] = base64[bitMask];
+			encoded[idx++] = '=';
+			encoded[idx++] = '=';
+			break;
+		case 2:
+			// bitMask is already set. No need to pad it out with
+			// 0's because it's already padded.
+			encoded[idx++] = base64[bitMask];
+			encoded[idx++] = '=';
+			break;
+		case 3:
+		default:
+			fprintf(stderr, "how the hell did you get here");
+	}
+	encoded[idx] = '\0';
 
 	return encoded;
 }
