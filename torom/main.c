@@ -1,0 +1,6 @@
+#include "torom.h"
+
+int main()
+{
+	return 0;
+}
