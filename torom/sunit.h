@@ -10,19 +10,22 @@
 #define BLUE            "\033[34m"
 #define RESET           "\033[m"
 
-#define MSG_PASS(a, msg)\
-	fprintf(stderr, GREEN BOLD "PASSED: " RESET __FILE__ ", %d: \'" #a\
-			"\' " msg "\n", __LINE__)
-#define MSG_FAIL(a, msg)\
-	fprintf(stderr, RED BOLD "FAILED: " RESET __FILE__ ", %d: \'" #a\
-			"\' " msg "\n", __LINE__)
+#define PASS\
+	GREEN BOLD "PASSED: " RESET 
+
+#define FAIL\
+	RED BOLD "FAILED: " RESET
+
+#define OUTCOME(a, msg, result)\
+	fprintf(stderr, result __FILE__ ", %d: \'" #a "\' " msg "\n", __LINE__)
+
 
 #define ASSERT(a)\
 do {\
 	if (a)\
-		MSG_PASS(a, "expected true");\
+		OUTCOME(a, "expected true", PASS);\
 	else\
-		MSG_FAIL(a, "expected true");\
+		OUTCOME(a, "expected true", FAIL);\
 	/* syntactic ugliness but it's necessary not to use stack space */\
 	return (a != 0);\
 } while (0)
@@ -30,72 +33,80 @@ do {\
 #define ASSERT_EQ(a, b)\
 do {\
 	if (a == b)\
-		MSG_PASS(a, "expected to equal \'" #b "\'");\
+		OUTCOME(a, "expected to equal \'" #b "\'", PASS);\
 	else\
-		MSG_FAIL(a, "expected to equal \'" #b "\'");\
+		OUTCOME(a, "expected to equal \'" #b "\'", FAIL);\
 	return (a == b);\
 } while (0)
 
 #define ASSERT_NEQ(a, b)\
 do {\
 	if (a != b)\
-		MSG_PASS(a, "expected not to equal \'" #b "\'");\
+		OUTCOME(a, "expected not to equal \'" #b "\'", PASS);\
 	else\
-		MSG_FAIL(a, "expected not to equal \'" #b "\'");\
+		OUTCOME(a, "expected not to equal \'" #b "\'", FAIL);\
 	return (a != b);\
 } while (0)
 
 #define ASSERT_GT(a, b)\
 do {\
 	if (a > b)\
-		MSG_PASS(a, "expected to be greater than \'" #b "\'");\
+		OUTCOME(a, "expected to be greater than \'" #b "\'", PASS);\
 	else\
-		MSG_FAIL(a, "expected to be greater than \'" #b "\'");\
+		OUTCOME(a, "expected to be greater than \'" #b "\'", FAIL);\
 	return (a > b);\
 } while (0)
 
 #define ASSERT_LT(a, b)\
 do {\
 	if (a < b)\
-		MSG_PASS(a, "expected to be less than \'" #b "\'");\
+		OUTCOME(a, "expected to be less than \'" #b "\'", PASS);\
 	else\
-		MSG_FAIL(a, "expected to be less than \'" #b "\'");\
+		OUTCOME(a, "expected to be less than \'" #b "\'", FAIL);\
 	return (a < b);\
 } while (0)
 
 #define ASSERT_GEQ(a, b)\
 do {\
 	if (a >= b)\
-		MSG_PASS(a, "expected to be greater than or equal to \'" #b "\'");\
+		OUTCOME(a, "expected to be greater than or equal to \'" #b\
+				"\'", PASS);\
 	else\
-		MSG_FAIL(a, "expected to be greater than or equal to \'" #b "\'");\
+		OUTCOME(a, "expected to be greater than or equal to \'" #b\
+				"\'", FAIL);\
 	return (a >= b);\
 } while (0)
 
 #define ASSERT_LEQ(a, b)\
 do {\
 	if (a <= b)\
-		MSG_PASS(a, "expected to be less than or equal to \'" #b "\'");\
+		OUTCOME(a, "expected to be less than or equal to \'" #b "\'",\
+				PASS);\
 	else\
-		MSG_FAIL(a, "expected to be less than or equal to \'" #b "\'");\
+		OUTCOME(a, "expected to be less than or equal to \'" #b "\'",\
+				FAIL);\
 	return (a <= b);\
 } while (0)
 
 #define ASSERT_STREQ(a, b)\
 do {\
 	if (!a) {\
-		MSG_FAIL(a, "is null");\
+		OUTCOME(a, "is null", PASS);\
 		return 0;\
 	}\
 	if (!b) {\
-		MSG_FAIL(b, "is null");\
+		OUTCOME(b, "is null", FAIL);\
 		return 0;\
 	}\
 	if (!strcmp(a, b)) {\
-		MSG_PASS(a, "expected to equal \'" #b "\'");\
+		fprintf(stderr, PASS __FILE__ ", %d: \'" #a "\' (%s) "\
+			       "expected to equal \'" #b "\' (%s)\n",\
+				__LINE__, a, b);\
 		return 1;\
 	} else {\
-		MSG_FAIL(a, "expected to equal \'" #b "\'");\
+		fprintf(stderr, FAIL __FILE__ ", %d: \'" #a "\' (%s) "\
+			       "expected to equal \'" #b "\' (%s)\n",\
+				__LINE__, a, b);\
 		return 0;\
 	}\
 } while (0)
@@ -103,18 +114,22 @@ do {\
 #define ASSERT_STRNEQ(a, b)\
 do {\
 	if (!a) {\
-		MSG_FAIL(a, "is null");\
+		OUTCOME(a, "is null", PASS);\
 		return 0;\
 	}\
 	if (!b) {\
-		MSG_FAIL(b, "is null");\
+		OUTCOME(b, "is null", FAIL);\
 		return 0;\
 	}\
 	if (strcmp(a, b)) {\
-		MSG_PASS(a, "expected not to equal \'" #b "\'");\
+		fprintf(stderr, PASS __FILE__ ", %d: \'" #a "\' (%s) "\
+			       "expected not to equal \'" #b "\' (%s)\n",\
+				__LINE__, a, b);\
 		return 1;\
 	} else {\
-		MSG_FAIL(a, "expected not to equal \'" #b "\'");\
+		fprintf(stderr, PASS __FILE__ ", %d: \'" #a "\' (%s) "\
+			       "expected not to equal \'" #b "\' (%s)\n",\
+				__LINE__, a, b);\
 		return 0;\
 	}\
 } while (0)
