@@ -1,9 +1,9 @@
-SRC = torom.c
+SRC = torom.c handleArgs.c
 MAIN = main.c
 TEST = tests.c
 OBJ = $(SRC:.c=.o)
 MAIN_OBJ = $(MAIN:.c=.o)
-TEST_OBJ = $(TESTS:.c=.o)
+TEST_OBJ = $(TEST:.c=.o)
 BINDIR = /usr/local/bin
 CC = cc
 EXE = torom
@@ -55,4 +55,4 @@ $(EXE): $(OBJ) $(MAIN_OBJ)
 
 $(OBJ) $(MAIN_OBJ) $(TEST_OBJ): torom.h
 
-$(TEST_OBJ): sunit.h
+$(TEST_OBJ): sunit.h tests.h
