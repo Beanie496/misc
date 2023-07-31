@@ -22,8 +22,10 @@ static char base64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123
 
 int main(int argc, char *argv[])
 {
-	if (argc == 1)
-		return 1;
+	if (argc == 1) {
+		displayHelp();
+		return 0;
+	}
 
 	int i = 1;
 	flags.encode = 1;
@@ -53,12 +55,16 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if (i == argc)
+	if (i == argc) {
+		fprintf(stderr, "Last argument must be a file\n");
 		return 1;
+	}
 
 	FILE *f = fopen(argv[i], "r");
-	if (f == NULL)
+	if (f == NULL) {
+		fprintf(stderr, "Cannot open file for reading\n");
 		return 1;
+	}
 
 	char *output;
 	if (flags.encode)
@@ -85,7 +91,7 @@ void displayHelp(void)
 			"(non-alphanumeric)\n"
 	       "    -w		wrap encoded data after n characters (default "
 			"%d)\n"
-	       "    -h		display this message and die\n", flags.wrap);
+	       "    -h		display this message and exit\n", flags.wrap);
 	exit(0);
 }
 
@@ -170,7 +176,7 @@ char *encode(FILE *stream)
 char *decode(FILE *stream)
 {
 	// implement
-	return NULL;
+	return "Decoding not implemented yet";
 }
 
 int toint(char *str)
