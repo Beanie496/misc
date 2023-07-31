@@ -4,8 +4,9 @@
 #include "torom.h"
 
 static void runAllTests(void);
-static int checkFirstArgIsRead();
-static int checkFirstArgIsConvertedToNumber();
+static int firstArgIsConvertedToNumber();
+static int eachBaseNumberIsConvertedCorrectly();
+static int twoOfEachBaseNumberIsConvertedCorrectly();
 
 int testsRun;
 int testsPassed;
@@ -20,20 +21,30 @@ int main(int argc, char *argv[])
 
 void runAllTests(void)
 {
-	RUN_TEST(checkFirstArgIsRead);
-	RUN_TEST(checkFirstArgIsConvertedToNumber);
-	END_TESTING();
+	RUN_TEST(firstArgIsConvertedToNumber);
+	RUN_TEST(eachBaseNumberIsConvertedCorrectly);
+	RUN_TEST(twoOfEachBaseNumberIsConvertedCorrectly);
+	TEST_SUMMARY();
 }
 
-int checkFirstArgIsRead()
+int firstArgIsConvertedToNumber()
 {
-	ASSERT_STREQ(args.firstArg, "12345");
+	int argAsNum = strtonum(args.firstArg);
+	char *arg = malloc(sizeof(char) * (strlen(args.firstArg) + 1));
+	sprintf(arg, "%d", argAsNum);
+	ASSERT_STREQ(arg, args.firstArg);
+	free(arg);
+	return 1;
 }
 
-int checkFirstArgIsConvertedToNumber()
+int eachBaseNumberIsConvertedCorrectly()
 {
-	int num = strtonum(args.firstArg);
-	char *str = malloc(sizeof(char) * (strlen(args.firstArg) + 1));
-	sprintf(str, "%d", num);
-	ASSERT_STREQ(str, args.firstArg);
+	ASSERT_STREQ(torom(1000), "M");
+	ASSERT_STREQ(torom(500), "D");
+	ASSERT_STREQ(torom(100), "C");
+	ASSERT_STREQ(torom(50), "L");
+	ASSERT_STREQ(torom(10), "X");
+	ASSERT_STREQ(torom(5), "V");
+	ASSERT_STREQ(torom(1), "I");
+	return 1;
 }
